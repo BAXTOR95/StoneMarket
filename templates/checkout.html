@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block title %}Checkout{% endblock %} {% block
+content %}
+<h2>Checkout</h2>
+<form id="payment-form">
+	<button id="checkout-button">Checkout</button>
+</form>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+	const stripe = Stripe('{{ stripe_public_key }}');
+	const checkoutButton = document.getElementById('checkout-button');
+
+	checkoutButton.addEventListener('click', async (e) => {
+		e.preventDefault();
+		const response = await fetch('{{ url_for("checkout") }}', {
+			method: 'POST',
+		});
+
+		const session = await response.json();
+		const result = await stripe.redirectToCheckout({ sessionId: session.id });
+
+		if (result.error) {
+			alert(result.error.message);
+		}
+	});
+</script>
+{% endblock %}

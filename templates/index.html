@@ -1,0 +1,18 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+%}
+<div class="row">
+	{% for item in items %}
+	<div class="col-md-4">
+		<div class="card mb-4 shadow-sm">
+			<img class="card-img-top" src="{{ item.image }}" alt="Card image cap" />
+			<div class="card-body">
+				<h5 class="card-title">{{ item.name }}</h5>
+				<p class="card-text">{{ item.description }}</p>
+				<p class="card-text">${{ item.price }}</p>
+				<a href="#" class="btn btn-primary">Add to cart</a>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

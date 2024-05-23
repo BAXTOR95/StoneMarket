@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, shrink-to-fit=no"
+		/>
+		<!-- Bootstrap CSS -->
+		{{ bootstrap.load_css() }}
+		<title>{% block title %}{% endblock %} - eCommerce</title>
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-md navbar-light bg-light">
+			<a class="navbar-brand" href="{{ url_for('index') }}">eCommerce</a>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ml-auto">
+					{% if current_user.is_authenticated %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+					</li>
+					{% else %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('login') }}">Login</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('register') }}">Register</a>
+					</li>
+					{% endif %}
+				</ul>
+			</div>
+		</nav>
+		<div class="container">
+			{% with messages = get_flashed_messages(with_categories=true) %} {% if
+			messages %} {% for category, message in messages %}
+			<div class="alert alert-{{ category }}">{{ message }}</div>
+			{% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
+		</div>
+		<!-- Bootstrap core JS-->
+		{{ bootstrap.load_js() }}
+	</body>
+</html>

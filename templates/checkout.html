@@ -1,8 +1,33 @@
 {% extends "base.html" %} {% block title %}Checkout{% endblock %} {% block
 content %}
 <h2>Checkout</h2>
+<h3>Review Your Order</h3>
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Item</th>
+			<th scope="col">Quantity</th>
+			<th scope="col">Price</th>
+			<th scope="col">Total</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for cart_item in cart_items %}
+		<tr>
+			<td>{{ cart_item.item.name }}</td>
+			<td>{{ cart_item.quantity }}</td>
+			<td>${{ cart_item.item.price }}</td>
+			<td>${{ cart_item.item.price * cart_item.quantity }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<h3>Total Amount: ${{ total_amount }}</h3>
 <form id="payment-form">
-	<button id="checkout-button">Checkout</button>
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+	<button id="checkout-button" class="btn btn-primary">
+		Proceed to Payment
+	</button>
 </form>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
@@ -11,8 +36,14 @@ content %}
 
 	checkoutButton.addEventListener('click', async (e) => {
 		e.preventDefault();
+		const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 		const response = await fetch('{{ url_for("checkout") }}', {
 			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+			},
+			body: JSON.stringify({}),
 		});
 
 		const session = await response.json();

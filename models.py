@@ -27,9 +27,13 @@ class User(UserMixin, db.Model):
     password_hash: Mapped[str] = mapped_column(String(128))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     last_login: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
     orders: Mapped[List["Order"]] = relationship("Order", back_populates="user")
+    cart_items: Mapped[List["CartItem"]] = relationship(
+        "CartItem", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
@@ -88,3 +92,26 @@ class Order(db.Model):
 
     def __repr__(self) -> str:
         return f"<Order {self.id} for user {self.user_id}>"
+
+
+class CartItem(db.Model):
+    """Represents an item in a user's cart.
+
+    Attributes:
+        id (int): The unique identifier for the cart item.
+        user_id (int): The identifier of the user who added the item to the cart.
+        item_id (int): The identifier of the item in the cart.
+        quantity (int): The quantity of the item in the cart.
+    """
+
+    __tablename__ = "cart_items"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
+    item_id: Mapped[int] = mapped_column(Integer, ForeignKey('items.id'))
+    quantity: Mapped[int] = mapped_column(Integer, default=1)
+
+    user: Mapped["User"] = relationship("User", back_populates="cart_items")
+    item: Mapped["Item"] = relationship("Item")
+
+    def __repr__(self) -> str:
+        return f"<CartItem {self.id} for user {self.user_id}>"

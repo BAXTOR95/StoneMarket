@@ -15,7 +15,14 @@
 			<a class="navbar-brand" href="{{ url_for('index') }}">eCommerce</a>
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav ml-auto">
-					{% if current_user.is_authenticated %}
+					{% if current_user.is_authenticated and current_user.is_admin %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('add_item') }}">Add Item</a>
+					</li>
+					{% endif %} {% if current_user.is_authenticated %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('cart') }}">Cart</a>
+					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
 					</li>

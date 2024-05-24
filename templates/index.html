@@ -9,7 +9,13 @@
 				<h5 class="card-title">{{ item.name }}</h5>
 				<p class="card-text">{{ item.description }}</p>
 				<p class="card-text">${{ item.price }}</p>
-				<a href="#" class="btn btn-primary">Add to cart</a>
+				<form
+					action="{{ url_for('add_to_cart', item_id=item.id) }}"
+					method="post"
+				>
+					<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+					<button type="submit" class="btn btn-primary">Add to cart</button>
+				</form>
 			</div>
 		</div>
 	</div>

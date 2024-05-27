@@ -9,6 +9,11 @@
 				<h5 class="card-title">{{ item.name }}</h5>
 				<p class="card-text">{{ item.description }}</p>
 				<p class="card-text">${{ item.price }}</p>
+				<a
+					href="{{ url_for('product_details', product_id=item.id) }}"
+					class="btn btn-primary"
+					>View Details</a
+				>
 				<form
 					action="{{ url_for('add_to_cart', item_id=item.id) }}"
 					method="post"

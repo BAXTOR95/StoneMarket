@@ -9,6 +9,7 @@ content %}
 			<th scope="col">Items</th>
 			<th scope="col">Status</th>
 			<th scope="col">Date</th>
+			<th scope="col">Details</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -22,6 +23,13 @@ content %}
 			</td>
 			<td>{{ order_detail.order.status }}</td>
 			<td>{{ order_detail.order.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+			<td>
+				<a
+					href="{{ url_for('order_details', order_id=order_detail.order.id) }}"
+					class="btn btn-primary btn-sm"
+					>View Details</a
+				>
+			</td>
 		</tr>
 		{% endfor %}
 	</tbody>

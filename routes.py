@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify, abort
 from app import app, db
 from models import User, Item, Order, CartItem
-from forms import LoginForm, RegistrationForm, AddItemForm
+from forms import LoginForm, RegistrationForm, AddItemForm, EditItemForm
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from decorators import admin_required
@@ -210,6 +210,20 @@ def order_history():
     )
 
 
+@app.route('/order/<int:order_id>')
+@login_required
+def order_details(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    items = []
+    for item_id in order.items.split(';'):
+        item = Item.query.get(item_id)
+        if item:
+            items.append(item)
+    return render_template(
+        'order_details.html', title='Order Details', order=order, items=items
+    )
+
+
 @app.route('/add_item', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -227,3 +241,22 @@ def add_item():
         flash('Item has been added successfully!')
         return redirect(url_for('index'))
     return render_template('add_item.html', title='Add Item', form=form)
+
+
+@app.route('/product/<int:product_id>', methods=['GET', 'POST'])
+def product_details(product_id):
+    product = Item.query.get_or_404(product_id)
+    form = EditItemForm(obj=product)
+
+    if form.validate_on_submit():
+        if current_user.is_authenticated and current_user.is_admin:
+            form.populate_obj(product)
+            db.session.commit()
+            flash('Product updated successfully!', 'success')
+            return redirect(url_for('product_details', product_id=product_id))
+        else:
+            flash('You do not have permission to edit this product.', 'danger')
+
+    return render_template(
+        'product_details.html', title='Product Details', product=product, form=form
+    )

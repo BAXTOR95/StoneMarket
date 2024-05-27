@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}Product Details{% endblock %} {%
+block content %}
+<h2>Product Details</h2>
+<p><strong>Name:</strong> {{ product.name }}</p>
+<p><strong>Description:</strong> {{ product.description }}</p>
+<p><strong>Price:</strong> ${{ product.price }}</p>
+<p><strong>Image:</strong></p>
+<img src="{{ product.image }}" alt="{{ product.name }}" class="img-fluid" />
+
+{% if current_user.is_authenticated and current_user.is_admin %}
+<h3>Edit Product</h3>
+<form method="POST">
+	{{ form.hidden_tag() }}
+	<div class="form-group">
+		{{ form.name.label }} {{ form.name(class="form-control") }}
+	</div>
+	<div class="form-group">
+		{{ form.description.label }} {{ form.description(class="form-control") }}
+	</div>
+	<div class="form-group">
+		{{ form.price.label }} {{ form.price(class="form-control") }}
+	</div>
+	<div class="form-group">
+		{{ form.image.label }} {{ form.image(class="form-control") }}
+	</div>
+	<button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+</form>
+{% endif %} {% endblock %}

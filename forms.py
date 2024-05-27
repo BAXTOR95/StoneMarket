@@ -37,3 +37,11 @@ class AddItemForm(FlaskForm):
     price = FloatField('Price', validators=[DataRequired()])
     image = StringField('Image URL', validators=[DataRequired()])
     submit = SubmitField('Add Item')
+
+
+class EditItemForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
+    price = FloatField('Price', validators=[DataRequired()])
+    image = StringField('Image URL', validators=[DataRequired()])
+    submit = SubmitField('Update')

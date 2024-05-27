@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block title %}Order History{% endblock %} {% block
+content %}
+<h2>Order History</h2>
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">Order ID</th>
+			<th scope="col">Total Amount</th>
+			<th scope="col">Items</th>
+			<th scope="col">Status</th>
+			<th scope="col">Date</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for order_detail in order_details %}
+		<tr>
+			<td>{{ order_detail.order.id }}</td>
+			<td>${{ order_detail.order.total_amount }}</td>
+			<td>
+				{% for item in order_detail.order_items %} {{ item.name }}<br />
+				{% endfor %}
+			</td>
+			<td>{{ order_detail.order.status }}</td>
+			<td>{{ order_detail.order.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

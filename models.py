@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import List
 from flask_login import UserMixin
 from sqlalchemy import Integer, String, Float, Boolean, DateTime, ForeignKey
@@ -78,6 +78,7 @@ class Order(db.Model):
         total_amount (float): The total amount of the order.
         items (str): A string representation of the items in the order.
         status (str): The status of the order (e.g., 'Pending', 'Completed').
+        timestamp (DateTime): The date and time the order was placed.
     """
 
     __tablename__ = "orders"
@@ -86,6 +87,9 @@ class Order(db.Model):
     total_amount: Mapped[float] = mapped_column(Float)
     items: Mapped[str] = mapped_column(String(200))
     status: Mapped[str] = mapped_column(String(20), default='Pending')
+    timestamp: Mapped[DateTime] = mapped_column(
+        DateTime, default=lambda: datetime.now(UTC)
+    )
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="orders")

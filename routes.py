@@ -191,6 +191,25 @@ def order_confirmation():
         return redirect(url_for('index'))
 
 
+@app.route('/order_history')
+@login_required
+def order_history():
+    orders = Order.query.filter_by(user_id=current_user.id).all()
+    order_details = []
+
+    for order in orders:
+        items = []
+        for item_id in order.items.split(';'):
+            item = Item.query.get(item_id)
+            if item:
+                items.append(item)
+        order_details.append({'order': order, 'order_items': items})
+
+    return render_template(
+        'order_history.html', title='Order History', order_details=order_details
+    )
+
+
 @app.route('/add_item', methods=['GET', 'POST'])
 @login_required
 @admin_required

@@ -8,11 +8,11 @@
 		/>
 		<!-- Bootstrap CSS -->
 		{{ bootstrap.load_css() }}
-		<title>{% block title %}{% endblock %} - eCommerce</title>
+		<title>{% block title %}{% endblock %} - StoneMarket</title>
 	</head>
 	<body>
 		<nav class="navbar navbar-expand-md navbar-light bg-light">
-			<a class="navbar-brand" href="{{ url_for('index') }}">eCommerce</a>
+			<a class="navbar-brand" href="{{ url_for('index') }}">StoneMarket</a>
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav ml-auto">
 					{% if current_user.is_authenticated and current_user.is_admin %}
@@ -22,6 +22,11 @@
 					{% endif %} {% if current_user.is_authenticated %}
 					<li class="nav-item">
 						<a class="nav-link" href="{{ url_for('cart') }}">Cart</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('order_history') }}"
+							>Order History</a
+						>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="{{ url_for('logout') }}">Logout</a>

@@ -18,7 +18,9 @@ content %}
 			<td>{{ order_detail.order.id }}</td>
 			<td>${{ order_detail.order.total_amount }}</td>
 			<td>
-				{% for item in order_detail.order_items %} {{ item.name }}<br />
+				{% for item in order_detail.order_items %}
+				<!--  -->
+				{{ item.name }} - ${{ item.price }} x {{ item.quantity }}<br />
 				{% endfor %}
 			</td>
 			<td>{{ order_detail.order.status }}</td>

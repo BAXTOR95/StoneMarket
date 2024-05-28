@@ -9,9 +9,22 @@ content %}
 	}}
 </p>
 <h3>Items:</h3>
-<ul>
+<ul class="list-group">
 	{% for item in items %}
-	<li>{{ item.name }} - ${{ item.price }} x {{ item.quantity }}</li>
+	<li class="list-group-item">
+		<img
+			src="{{ item.image }}"
+			alt="{{ item.name }}"
+			class="img-thumbnail"
+			style="width: 100px; height: auto"
+		/>
+		<div class="d-inline-block ml-3">
+			<p><strong>Name:</strong> {{ item.name }}</p>
+			<p><strong>Description:</strong> {{ item.description }}</p>
+			<p><strong>Price:</strong> ${{ item.price }}</p>
+			<p><strong>Quantity:</strong> {{ item.quantity }}</p>
+		</div>
+	</li>
 	{% endfor %}
 </ul>
 <a href="{{ url_for('order_history') }}" class="btn btn-secondary"

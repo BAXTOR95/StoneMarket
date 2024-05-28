@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, UTC
 from typing import List
 from flask_login import UserMixin
@@ -93,7 +94,8 @@ class Order(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
     total_amount: Mapped[float] = mapped_column(Float)
-    items: Mapped[str] = mapped_column(String(200))
+    items: Mapped[str] = mapped_column(String(200))  # This will store item IDs
+    serialized_items: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default='Pending')
     timestamp: Mapped[DateTime] = mapped_column(
         DateTime, default=lambda: datetime.now(UTC)
@@ -104,6 +106,19 @@ class Order(db.Model):
 
     def __repr__(self) -> str:
         return f"<Order {self.id} for user {self.user_id}>"
+
+    def serialize_items(self, cart_items):
+        serialized_data = [
+            {
+                'name': item.item.name,
+                'description': item.item.description,
+                'price': item.item.price,
+                'quantity': item.quantity,
+                'image': item.item.image,
+            }
+            for item in cart_items
+        ]
+        self.serialized_items = json.dumps(serialized_data)
 
 
 class CartItem(db.Model):

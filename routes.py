@@ -12,6 +12,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from decorators import admin_required
 import stripe
+import json
 
 stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
@@ -190,7 +191,11 @@ def order_confirmation():
             user_id=current_user.id,
             total_amount=total_amount,
             items=";".join([str(item.item_id) for item in cart_items]),
+            status='Pending',
         )
+        order.serialize_items(
+            cart_items
+        )  # Serialize items before adding the order to the session
         db.session.add(order)
         db.session.commit()
 
@@ -206,7 +211,7 @@ def order_confirmation():
             payment_intent=payment_intent,
         )
     except Exception as e:
-        flash(str(e))
+        flash(str(e), 'danger')
         return redirect(url_for('index'))
 
 
@@ -217,12 +222,8 @@ def order_history():
     order_details = []
 
     for order in orders:
-        items = []
-        for item_id in order.items.split(';'):
-            item = Item.query.get(item_id)
-            if item:
-                items.append(item)
-        order_details.append({'order': order, 'order_items': items})
+        serialized_items = json.loads(order.serialized_items)
+        order_details.append({'order': order, 'order_items': serialized_items})
 
     return render_template(
         'order_history.html', title='Order History', order_details=order_details
@@ -233,13 +234,9 @@ def order_history():
 @login_required
 def order_details(order_id):
     order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
-    items = []
-    for item_id in order.items.split(';'):
-        item = Item.query.get(item_id)
-        if item:
-            items.append(item)
+    serialized_items = json.loads(order.serialized_items)  # Parse the serialized items
     return render_template(
-        'order_details.html', title='Order Details', order=order, items=items
+        'order_details.html', title='Order Details', order=order, items=serialized_items
     )
 
 
@@ -263,20 +260,6 @@ def add_item():
         flash('Item has been added successfully!', 'success')
         return redirect(url_for('index'))
     return render_template('add_item.html', title='Add Item', form=form)
-
-
-@app.route('/add_category', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def add_category():
-    form = AddCategoryForm()
-    if form.validate_on_submit():
-        category = Category(name=form.name.data)
-        db.session.add(category)
-        db.session.commit()
-        flash('Category added successfully!', 'success')
-        return redirect(url_for('add_category'))
-    return render_template('add_category.html', title='Add Category', form=form)
 
 
 @app.route('/product/<int:product_id>', methods=['GET', 'POST'])
@@ -305,8 +288,57 @@ def product_details(product_id):
     )
 
 
-@app.route('/category/<int:category_id>')
-def category_items(category_id):
+@app.route('/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_product(product_id):
+    product = Item.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    flash('Product has been deleted successfully!', 'success')
+    return redirect(url_for('index'))
+
+
+@app.route('/manage_categories', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def manage_categories():
+    form = AddCategoryForm()
+    categories = Category.query.all()
+
+    if form.validate_on_submit():
+        category = Category(name=form.name.data)
+        db.session.add(category)
+        db.session.commit()
+        flash('Category added successfully!', 'success')
+        return redirect(url_for('manage_categories'))
+
+    return render_template(
+        'manage_categories.html',
+        title='Manage Categories',
+        form=form,
+        categories=categories,
+    )
+
+
+@app.route('/delete_category/<int:category_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_category(category_id):
     category = Category.query.get_or_404(category_id)
-    items = Item.query.filter_by(category_id=category_id).all()
-    return render_template('category_items.html', title=category.name, items=items)
+
+    # Ensure no items are associated with this category before deleting
+    if category.items:
+        flash('Cannot delete category with associated items!', 'danger')
+        return redirect(url_for('manage_categories'))
+
+    db.session.delete(category)
+    db.session.commit()
+    flash('Category has been deleted successfully!', 'success')
+    return redirect(url_for('manage_categories'))
+
+
+"""TODO:
+3. User Notifications. Send email notifications to users upon successful orders.
+4. Improved UI/UX.
+"""

@@ -1,8 +1,8 @@
-"""Add categories and new fields to Item model
+"""Initial migration
 
-Revision ID: 3e61eccb55c7
-Revises: d83bff22c281
-Create Date: 2024-05-27 20:16:18.955253
+Revision ID: 6c53368b1c94
+Revises: 
+Create Date: 2024-05-28 17:35:06.281743
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3e61eccb55c7'
-down_revision = 'd83bff22c281'
+revision = '6c53368b1c94'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -46,7 +46,7 @@ def upgrade():
     sa.Column('description', sa.String(length=200), nullable=False),
     sa.Column('price', sa.Float(), nullable=False),
     sa.Column('image', sa.String(length=200), nullable=False),
-    sa.Column('stock', sa.Integer(), nullable=False),
+    sa.Column('stock', sa.String(length=20), nullable=False),
     sa.Column('weight', sa.Float(), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
@@ -60,6 +60,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('total_amount', sa.Float(), nullable=False),
     sa.Column('items', sa.String(length=200), nullable=False),
+    sa.Column('serialized_items', sa.String(), nullable=False),
     sa.Column('status', sa.String(length=20), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),

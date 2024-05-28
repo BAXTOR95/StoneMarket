@@ -11,6 +11,7 @@ from forms import (
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from decorators import admin_required
+from notification_manager import NotificationManager
 import stripe
 import json
 
@@ -204,6 +205,19 @@ def order_confirmation():
             db.session.delete(cart_item)
         db.session.commit()
 
+        # Send email notification
+        notification_manager = NotificationManager()
+        subject = "Order Confirmation"
+        html_body = render_template(
+            'email/order_confirmation.html',
+            user=current_user,
+            order=order,
+            items=json.loads(order.serialized_items),
+        )
+        notification_manager.send_email(
+            subject, html_body, current_user.email, html=True
+        )
+
         return render_template(
             'order_confirmation.html',
             title='Order Confirmation',
@@ -339,6 +353,5 @@ def delete_category(category_id):
 
 
 """TODO:
-3. User Notifications. Send email notifications to users upon successful orders.
 4. Improved UI/UX.
 """

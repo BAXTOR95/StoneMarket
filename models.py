@@ -55,6 +55,9 @@ class Item(db.Model):
         description (str): The description of the item.
         price (float): The price of the item.
         image (str): The URL of the item's image.
+        stock (int): The quantity of the item in stock.
+        weight (float): The weight of the item.
+        category_id (int): The identifier of the category the item belongs to.
     """
 
     __tablename__ = "items"
@@ -63,6 +66,11 @@ class Item(db.Model):
     description: Mapped[str] = mapped_column(String(200))
     price: Mapped[float] = mapped_column(Float)
     image: Mapped[str] = mapped_column(String(200))
+    stock: Mapped[str] = mapped_column(String(20), default='in_stock')
+    weight: Mapped[float] = mapped_column(Float, default=0.0)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey('categories.id'))
+
+    category: Mapped["Category"] = relationship("Category", back_populates="items")
 
     def __repr__(self) -> str:
         return f"<Item {self.name}>"
@@ -119,3 +127,22 @@ class CartItem(db.Model):
 
     def __repr__(self) -> str:
         return f"<CartItem {self.id} for user {self.user_id}>"
+
+
+class Category(db.Model):
+    """
+    Represents a category of items.
+
+    Attributes:
+        id (int): The unique identifier for the category.
+        name (str): The name of the category.
+    """
+
+    __tablename__ = "categories"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+
+    items: Mapped[List["Item"]] = relationship("Item", back_populates="category")
+
+    def __repr__(self) -> str:
+        return f"<Category {self.name}>"

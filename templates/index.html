@@ -1,5 +1,24 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
 %}
+<h2>Categories</h2>
+<div class="mb-4">
+	<form method="get" action="{{ url_for('index') }}">
+		<select
+			name="category_id"
+			class="form-control"
+			onchange="this.form.submit()"
+		>
+			<option value="">All Categories</option>
+			{% for category in categories %} {% if category.id == selected_category %}
+			<option value="{{ category.id }}" selected>{{ category.name }}</option>
+			{% else %}
+			<option value="{{ category.id }}">{{ category.name }}</option>
+			{% endif %} {% endfor %}
+		</select>
+	</form>
+</div>
+
+<h2>Products</h2>
 <div class="row">
 	{% for item in items %}
 	<div class="col-md-4">

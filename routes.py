@@ -1,7 +1,13 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify, abort
 from app import app, db
-from models import User, Item, Order, CartItem
-from forms import LoginForm, RegistrationForm, AddItemForm, EditItemForm
+from models import User, Item, Order, CartItem, Category
+from forms import (
+    LoginForm,
+    RegistrationForm,
+    AddItemForm,
+    EditItemForm,
+    AddCategoryForm,
+)
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from decorators import admin_required
@@ -18,8 +24,21 @@ def inject_stripe_key():
 @app.route('/')
 @app.route('/index')
 def index():
-    items = Item.query.all()
-    return render_template('index.html', title='Home', items=items)
+    category_id = request.args.get('category_id', type=int)
+    categories = Category.query.all()
+
+    if category_id:
+        items = Item.query.filter_by(category_id=category_id).all()
+    else:
+        items = Item.query.all()
+
+    return render_template(
+        'index.html',
+        title='Home',
+        items=items,
+        categories=categories,
+        selected_category=category_id,
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -235,12 +254,29 @@ def add_item():
             description=form.description.data,
             price=form.price.data,
             image=form.image.data,
+            stock=form.stock.data,
+            weight=form.weight.data,
+            category_id=form.category.data,
         )
         db.session.add(item)
         db.session.commit()
-        flash('Item has been added successfully!')
+        flash('Item has been added successfully!', 'success')
         return redirect(url_for('index'))
     return render_template('add_item.html', title='Add Item', form=form)
+
+
+@app.route('/add_category', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_category():
+    form = AddCategoryForm()
+    if form.validate_on_submit():
+        category = Category(name=form.name.data)
+        db.session.add(category)
+        db.session.commit()
+        flash('Category added successfully!', 'success')
+        return redirect(url_for('add_category'))
+    return render_template('add_category.html', title='Add Category', form=form)
 
 
 @app.route('/product/<int:product_id>', methods=['GET', 'POST'])
@@ -250,7 +286,14 @@ def product_details(product_id):
 
     if form.validate_on_submit():
         if current_user.is_authenticated and current_user.is_admin:
-            form.populate_obj(product)
+            product.name = form.name.data
+            product.description = form.description.data
+            product.price = form.price.data
+            product.image = form.image.data
+            product.stock = form.stock.data
+            product.weight = form.weight.data
+            product.category_id = form.category.data
+
             db.session.commit()
             flash('Product updated successfully!', 'success')
             return redirect(url_for('product_details', product_id=product_id))
@@ -260,3 +303,10 @@ def product_details(product_id):
     return render_template(
         'product_details.html', title='Product Details', product=product, form=form
     )
+
+
+@app.route('/category/<int:category_id>')
+def category_items(category_id):
+    category = Category.query.get_or_404(category_id)
+    items = Item.query.filter_by(category_id=category_id).all()
+    return render_template('category_items.html', title=category.name, items=items)

@@ -31,7 +31,7 @@ StoneMarket is an eCommerce website built using Python's Flask framework. The we
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/StoneMarket.git
+   git clone https://github.com/BAXTOR95/StoneMarket.git
    cd StoneMarket
    ```
 

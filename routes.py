@@ -51,7 +51,7 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -81,7 +81,7 @@ def register():
             user.is_admin = True
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -96,11 +96,42 @@ def add_to_cart(item_id):
     if cart_item:
         cart_item.quantity += 1
     else:
-        cart_item = CartItem(user_id=current_user.id, item_id=item_id)
+        cart_item = CartItem(user_id=current_user.id, item_id=item_id, quantity=1)
         db.session.add(cart_item)
     db.session.commit()
-    flash(f'Added {item.name} to your cart.')
+    flash(f'Added {item.name} to your cart.', 'success')
     return redirect(url_for('index'))
+
+
+@app.route('/update_cart/<int:item_id>', methods=['POST'])
+@login_required
+def update_cart(item_id):
+    action = request.form.get('action')
+    cart_item = CartItem.query.filter_by(
+        id=item_id, user_id=current_user.id
+    ).first_or_404()
+
+    if action == 'increase':
+        cart_item.quantity += 1
+    elif action == 'decrease' and cart_item.quantity > 1:
+        cart_item.quantity -= 1
+    elif action == 'decrease' and cart_item.quantity == 1:
+        db.session.delete(cart_item)
+
+    db.session.commit()
+    return redirect(url_for('cart'))
+
+
+@app.route('/delete_cart_item/<int:item_id>', methods=['POST'])
+@login_required
+def delete_cart_item(item_id):
+    cart_item = CartItem.query.filter_by(
+        id=item_id, user_id=current_user.id
+    ).first_or_404()
+    db.session.delete(cart_item)
+    db.session.commit()
+    flash('Item removed from cart.', 'success')
+    return redirect(url_for('cart'))
 
 
 @app.route('/cart')
@@ -114,18 +145,6 @@ def cart():
         cart_items=cart_items,
         total_amount=total_amount,
     )
-
-
-@app.route('/remove_from_cart/<int:cart_item_id>', methods=['POST'])
-@login_required
-def remove_from_cart(cart_item_id):
-    cart_item = CartItem.query.get_or_404(cart_item_id)
-    if cart_item.user_id != current_user.id:
-        abort(403)
-    db.session.delete(cart_item)
-    db.session.commit()
-    flash('Item removed from your cart.')
-    return redirect(url_for('cart'))
 
 
 @app.route('/checkout', methods=['GET', 'POST'])

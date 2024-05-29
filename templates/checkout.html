@@ -1,34 +1,43 @@
-{% extends "base.html" %} {% block title %}Checkout{% endblock %} {% block
-content %}
-<h2>Checkout</h2>
-<h3>Review Your Order</h3>
-<table class="table">
-	<thead>
-		<tr>
-			<th scope="col">Item</th>
-			<th scope="col">Quantity</th>
-			<th scope="col">Price</th>
-			<th scope="col">Total</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for cart_item in cart_items %}
-		<tr>
-			<td>{{ cart_item.item.name }}</td>
-			<td>{{ cart_item.quantity }}</td>
-			<td>${{ cart_item.item.price }}</td>
-			<td>${{ cart_item.item.price * cart_item.quantity }}</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
-<h3>Total Amount: ${{ total_amount }}</h3>
-<form id="payment-form">
-	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-	<button id="checkout-button" class="btn btn-primary">
-		Proceed to Payment
-	</button>
-</form>
+{% extends "base.html" %}
+<!-- Title -->
+{% block title %}Checkout{% endblock %}
+<!-- Content -->
+{% block content %}
+<div class="container mt-4">
+	<h2 class="mb-4">Checkout</h2>
+	<h3 class="mb-4">Review Your Order</h3>
+	<div class="table-responsive">
+		<table class="table table-striped align-middle">
+			<thead>
+				<tr>
+					<th scope="col">Item</th>
+					<th scope="col" class="text-center">Quantity</th>
+					<th scope="col" class="text-end">Price</th>
+					<th scope="col" class="text-end">Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for cart_item in cart_items %}
+				<tr>
+					<td>{{ cart_item.item.name }}</td>
+					<td class="text-center">{{ cart_item.quantity }}</td>
+					<td class="text-end">${{ cart_item.item.price }}</td>
+					<td class="text-end">
+						${{ cart_item.item.price * cart_item.quantity }}
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<h3 class="mt-4">Total Amount: ${{ total_amount }}</h3>
+	<form id="payment-form" class="mt-4">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+		<button id="checkout-button" class="btn btn-primary w-100">
+			<i class="bi bi-credit-card"></i> Proceed to Payment
+		</button>
+	</form>
+</div>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 	const stripe = Stripe('{{ stripe_public_key }}');

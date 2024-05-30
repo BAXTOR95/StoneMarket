@@ -56,7 +56,7 @@ A live version of Boredom Buster is available at the following link: [https://st
 
    ```plaintext
    SECRET_KEY=your_secret_key
-   DATABASE_URI=sqlite:///app.db
+   DATABASE_URL=sqlite:///app.db
    STRIPE_SECRET_KEY=your_stripe_secret_key
    STRIPE_PUBLIC_KEY=your_stripe_public_key
    PROD=False

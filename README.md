@@ -2,6 +2,10 @@
 
 StoneMarket is an eCommerce website built using Python's Flask framework. The website allows users to browse products, add items to their cart, proceed to checkout, and receive order confirmation emails. Admin users can manage categories and products.
 
+## Live Version
+
+A live version of Boredom Buster is available at the following link: [https://stonemarket.onrender.com](https://stonemarket.onrender.com).
+
 ## Features
 
 - User Authentication (Registration, Login, Logout)

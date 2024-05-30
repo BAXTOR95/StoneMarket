@@ -41,7 +41,4 @@ def before_request():
 from routes import *
 
 if __name__ == '__main__':
-    with app.app_context():
-        upgrade()
-
     app.run(debug=not PROD)
